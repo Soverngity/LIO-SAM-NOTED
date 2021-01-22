@@ -22,6 +22,8 @@ lio_sam:
   # Export settings
   savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
   savePCDDirectory: "/Downloads/data/Pandar40/pcd/0104_no_gps/"        # in your home folder, starts and ends with "/". Warning: the code deletes "LOAM" folder then recreates it. See "mapOptimization" for implementation
+  savePATH: true
+  savePATHDirectory: "/home/soverngity/Downloads/data/path/0117_03/"
 
   # Sensor Settings
   sensor: velodyne                            # lidar sensor type, either 'velodyne' or 'ouster'
@@ -44,7 +46,7 @@ lio_sam:
   # Extrinsics (lidar -> IMU)
   #这块是个重点  作者上一行写的lidar->imu其实容易造成理解的偏差，通过后续操作可知其实是把imu数据转到雷达坐标系下
   #标定这块 平移矩阵没啥好说的 其实这个影响不是特别大 重点是旋转
-  extrinsicTrans: [1.53, 0.0, 1.41]
+  extrinsicTrans: [-1.53, 0.0, -1.41]
   #这里的旋转比较关键 需要配合utility.h中相关操作以及作者提供的图理解
   #作者的IMU与雷达的坐标系以及IMU提供的欧拉角的方向跟常用的有区别 特别注意IMU 的yaw角是与常见的反向的
   #所以才将Rot和RPY的旋转变换分开写，其实常见的两个矩阵都是一样的
@@ -54,19 +56,25 @@ lio_sam:
   #加速度计测量的是其感受到的加速度，陀螺仪测量的绕3个轴转动的角速度
   #extrinsicRot为输出的姿态坐标系，roll、pitch和yaw，需绕“lidar-z”轴旋转-90度
   #后序转为四元数，避免万向锁
-  #  extrinsicRot:  [0, -1, 0,
-  #                  1, 0, 0,
-  #                  0, 0, 1]
-  #  extrinsicRPY: [ 0, -1, 0,
-  #                  1, 0, 0,
-  #                  0, 0, 1 ]
+#  extrinsicRot:  [0, -1, 0,
+#                  1, 0, 0,
+#                  0, 0, 1]
+#  extrinsicRPY: [ 0, -1, 0,
+#                  1, 0, 0,
+#                  0, 0, 1 ]
   # calib results
-  extrinsicRot: [0.028716, -0.999575, 0.005095,
-                 0.999158, 0.028853, 0.029158,
-                 -0.029292, 0.004254, 0.999562]
-  extrinsicRPY: [0.028716, -0.999575, 0.005095,
-                 0.999158, 0.028853, 0.029158,
-                 -0.029292, 0.004254, 0.999562]
+#  extrinsicRot: [0.028716, -0.999575, 0.005095,
+#                 0.999158, 0.028853, 0.029158,
+#                 -0.029292, 0.004254, 0.999562]
+#  extrinsicRPY: [0.028716, -0.999575, 0.005095,
+#                 0.999158, 0.028853, 0.029158,
+#                 -0.029292, 0.004254, 0.999562]
+  extrinsicRot: [ 0, 1, 0,
+                  -1, 0, 0,
+                  0, 0, 1]
+  extrinsicRPY: [ 1, 0, 0,
+                  0, -1, 0,
+                  0, 0, 1]
   # LOAM feature threshold
   edgeThreshold: 1.0
   surfThreshold: 0.1

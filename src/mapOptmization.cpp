@@ -51,6 +51,8 @@ class mapOptimization : public ParamServer
 
 public:
 
+    ofstream out_txt_global_file;       // 最终路径轨迹保存txt
+
     // gtsam
     NonlinearFactorGraph gtSAMgraph;
     Values initialEstimate;
@@ -184,6 +186,16 @@ public:
 
     void allocateMemory()
     {
+        // global最终路径
+        if(savePATH)
+        {
+            time_t now_time = time(NULL);
+            struct tm *p = gmtime(&now_time);
+            char txtName[256] = {0};
+            sprintf(txtName, "%s%d-%d-%d-%d:%02d:%02d", savePATHDirectory.c_str(), 1900+p->tm_year,1+p->tm_mon,p->tm_mday,8+p->tm_hour,p->tm_min,p->tm_sec);
+            string txtNameStr = string(txtName);
+            out_txt_global_file.open(txtNameStr + "_global.txt", ios::out | ios::trunc);
+        }
         cloudKeyPoses3D.reset(new pcl::PointCloud<PointType>());
         cloudKeyPoses6D.reset(new pcl::PointCloud<PointTypePose>());
         copy_cloudKeyPoses3D.reset(new pcl::PointCloud<PointType>());
@@ -1566,6 +1578,18 @@ public:
         pose_stamped.pose.orientation.w = q.w();
 
         globalPath.poses.push_back(pose_stamped);
+        if(savePATH)
+        {
+            out_txt_global_file << setprecision(6)
+                                        << pose_stamped.header.stamp << " "
+                                        << pose_stamped.pose.position.x << " "
+                                        << pose_stamped.pose.position.y << " "
+                                        << pose_stamped.pose.position.z << " "
+                                        << pose_stamped.pose.orientation.x << " "
+                                        << pose_stamped.pose.orientation.y << " "
+                                        << pose_stamped.pose.orientation.z << " "
+                                        << pose_stamped.pose.orientation.w << endl;
+        }
     }
 
     void publishOdometry()

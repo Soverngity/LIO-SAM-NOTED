@@ -88,6 +88,9 @@ public:
     // Save pcd
     bool savePCD;
     string savePCDDirectory;
+    // Save path
+    bool savePATH;
+    string savePATHDirectory;
 
     // Lidar Sensor Configuration
     SensorType sensor;
@@ -172,6 +175,8 @@ public:
 
         nh.param<bool>("lio_sam/savePCD", savePCD, false);
         nh.param<std::string>("lio_sam/savePCDDirectory", savePCDDirectory, "/Downloads/LOAM/");
+        nh.param<bool>("lio_sam/savePATH", savePATH, false);
+        nh.param<std::string>("lio_sam/savePATHDirectory", savePATHDirectory, "/Downloads/LOAM/");
 
         std::string sensorStr;
         nh.param<std::string>("lio_sam/sensor", sensorStr, "");
@@ -252,7 +257,7 @@ public:
     sensor_msgs::Imu imuConverter(const sensor_msgs::Imu& imu_in)
     {
         sensor_msgs::Imu imu_out = imu_in;
-        // rotate acceleration 线性加速度
+        // rotate acceleration 线性加速度 vector3d为列向量
         Eigen::Vector3d acc(imu_in.linear_acceleration.x, imu_in.linear_acceleration.y, imu_in.linear_acceleration.z);
         acc = extRot * acc;
         imu_out.linear_acceleration.x = acc.x();
@@ -280,6 +285,31 @@ public:
         }
 
         return imu_out;
+    }
+
+    nav_msgs::Odometry odomConverter(const nav_msgs::Odometry& odom_in)
+    {
+        nav_msgs::Odometry odom_out = odom_in;
+        // position
+        Eigen::Vector3d position(odom_in.pose.pose.position.x, odom_in.pose.pose.position.y, odom_in.pose.pose.position.z);
+//        cout << "befor:" << " x: " << position.x() << " y: "<< position.y() << " z: "<< position.z() << endl;
+        position = extRot * position;
+//        cout << "after:" << " x: " << position.x() << " y: "<< position.y() << " z: "<< position.z() << endl;
+//        odom_out.pose.pose.position.x = position.x() + extTrans.x();
+//        odom_out.pose.pose.position.y = position.y() + extTrans.y();
+//        odom_out.pose.pose.position.z = position.z() + extTrans.z();
+        odom_out.pose.pose.position.x = position.x();
+        odom_out.pose.pose.position.y = position.y();
+        odom_out.pose.pose.position.z = position.z();
+        // orientation
+        Eigen::Quaterniond q_from(odom_in.pose.pose.orientation.w, odom_in.pose.pose.orientation.x, odom_in.pose.pose.orientation.y, odom_in.pose.pose.orientation.z);
+        Eigen::Quaterniond q_final = q_from * extQRPY;
+        odom_out.pose.pose.orientation.x = q_final.x();
+        odom_out.pose.pose.orientation.y = q_final.y();
+        odom_out.pose.pose.orientation.z = q_final.z();
+        odom_out.pose.pose.orientation.w = q_final.w();
+
+        return odom_out;
     }
 };
 
