@@ -50,10 +50,13 @@ public:
 
     void initializationValue()
     {
+        //cxp 20210127新增,对类中指针成员变量的初始化
+        cloudCurvature = nullptr;
+        cloudNeighborPicked = nullptr;
+        cloudLabel = nullptr;
+
         cloudSmoothness.resize(N_SCAN*Horizon_SCAN);
-
         downSizeFilter.setLeafSize(odometrySurfLeafSize, odometrySurfLeafSize, odometrySurfLeafSize);
-
         extractedCloud.reset(new pcl::PointCloud<PointType>());
         cornerCloud.reset(new pcl::PointCloud<PointType>());
         surfaceCloud.reset(new pcl::PointCloud<PointType>());
